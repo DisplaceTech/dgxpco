@@ -199,7 +199,7 @@ class FunctionsTest extends WP_UnitTestCase {
 			return [ self::PUBLIC_KEY ];
 		} );
 
-		$output = Functions\pre_download( false, self::DOWNLOAD_URL, new WP_Upgrader( new Automatic_Upgrader_Skin() ) );
+		$output = Functions\pre_download( false, self::DOWNLOAD_URL, $this->get_upgrader() );
 
 		$this->assertEquals( $tmpfiles['archive'], $output );
 		$this->assertFalse( file_exists( $tmpfiles['signature'] ), 'The signature tmpfile should have been deleted.' );
@@ -213,7 +213,7 @@ class FunctionsTest extends WP_UnitTestCase {
 
 		$this->assertSame(
 			$reply,
-			Functions\pre_download( $reply, self::DOWNLOAD_URL, new WP_Upgrader( new Automatic_Upgrader_Skin() ) ),
+			Functions\pre_download( $reply, self::DOWNLOAD_URL, $this->get_upgrader() ),
 			'If the function was already aborting, don\'t interrupt.'
 		);
 	}
@@ -225,7 +225,7 @@ class FunctionsTest extends WP_UnitTestCase {
 	 */
 	public function test_pre_download_only_downloads_core_packages( $url ) {
 		$this->assertFalse(
-			Functions\pre_download( false, $url, new WP_Upgrader( new Automatic_Upgrader_Skin() ) ),
+			Functions\pre_download( false, $url, $this->get_upgrader() ),
 			'Updates should abort if given an invalid package string.'
 		);
 	}
@@ -248,7 +248,7 @@ class FunctionsTest extends WP_UnitTestCase {
 			return new WP_Error();
 		} );
 
-		$output = Functions\pre_download( false, self::DOWNLOAD_URL, new WP_Upgrader( new Automatic_Upgrader_Skin() ) );
+		$output = Functions\pre_download( false, self::DOWNLOAD_URL, $this->get_upgrader() );
 
 		$this->assertTrue( is_wp_error( $output ), 'Should receive a WP_Error if unable to download signatures.' );
 	}
@@ -263,8 +263,20 @@ class FunctionsTest extends WP_UnitTestCase {
 
 		add_filter( 'dgxpco_require_signatures', '__return_false' );
 
-		$output = Functions\pre_download( false, self::DOWNLOAD_URL, new WP_Upgrader( new Automatic_Upgrader_Skin() ) );
+		$output = Functions\pre_download( false, self::DOWNLOAD_URL, $this->get_upgrader() );
 
 		$this->assertTrue( is_wp_error( $output ), 'Should receive a WP_Error if unable to download signatures.' );
+	}
+
+	/**
+	 * Retrieve a WP_Upgrader instance suitable for testing.
+	 *
+	 * @return new WP_Upgrader
+	 */
+	protected function get_upgrader() {
+		$upgrader = new WP_Upgrader( new Automatic_Upgrader_Skin() );
+		$upgrader->init();
+
+		return $upgrader;
 	}
 }
