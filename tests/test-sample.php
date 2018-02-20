@@ -5,6 +5,10 @@
  * @package DisplaceTech\DGXPCO
  */
 
+namespace DisplaceTech\DGXPCO\Tests;
+
+use WP_UnitTestCase;
+
 /**
  * Sample test case.
  */
