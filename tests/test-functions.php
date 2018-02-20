@@ -21,6 +21,13 @@ use WP_Upgrader;
 class FunctionsTest extends WP_UnitTestCase {
 
 	/**
+	 * A cached signature for TEST_ARCHIVE using PRIVATE_KEY.
+	 *
+	 * @var string
+	 */
+	protected static $signature;
+
+	/**
 	 * Private key to use for testing.
 	 *
 	 * @link https://github.com/paragonie/sodium_compat/blob/master/tests/unit/Ed25519Test.php
@@ -52,6 +59,20 @@ class FunctionsTest extends WP_UnitTestCase {
 	 * @var string
 	 */
 	const DOWNLOAD_URL = 'https://downloads.wordpress.org/release/wordpress-4.9.4.zip';
+
+	/**
+	 * To save having to sign the file multiple times, generate it once at the beginning of the run
+	 * and cache it.
+	 *
+	 * @beforeClass
+	 */
+	public static function generate_signature() {
+		if ( empty( self::$signature ) ) {
+			self::$signature = ParagonIE_Sodium_File::sign( self::TEST_ARCHIVE, ParagonIE_Sodium_Compat::hex2bin( self::PRIVATE_KEY ) );
+		}
+
+		return self::$signature;
+	}
 
 	/**
 	 * If SSL is unsupported, the plugin should deactivate itself.
@@ -118,10 +139,8 @@ class FunctionsTest extends WP_UnitTestCase {
 	 * @dataProvider hex_and_bin_provider()
 	 */
 	public function test_verify_file_ed25519( $signature, $public_key ) {
-		$signature = ParagonIE_Sodium_File::sign( self::TEST_ARCHIVE, ParagonIE_Sodium_Compat::hex2bin( self::PRIVATE_KEY ) );
-
 		$this->assertTrue(
-			Functions\verify_file_ed25519( self::TEST_ARCHIVE, [ $public_key ], $signature ),
+			Functions\verify_file_ed25519( self::TEST_ARCHIVE, [ $public_key ], self::$signature ),
 			'Expected the signature to be verified.'
 		);
 	}
@@ -131,7 +150,7 @@ class FunctionsTest extends WP_UnitTestCase {
 	 * will try to guess automatically.
 	 */
 	public function hex_and_bin_provider() {
-		$signature = ParagonIE_Sodium_File::sign( self::TEST_ARCHIVE, ParagonIE_Sodium_Compat::hex2bin( self::PRIVATE_KEY ) );
+		$signature = self::generate_signature();
 
 		return [
 			'Hex signature, hex key' => [ ParagonIE_Sodium_Compat::bin2hex( $signature ), self::PUBLIC_KEY ],
@@ -151,15 +170,14 @@ class FunctionsTest extends WP_UnitTestCase {
 	 * Ensure the plugin is able to download and verify signatures.
 	 */
 	public function test_pre_download() {
-		$signature = ParagonIE_Sodium_File::sign( self::TEST_ARCHIVE, ParagonIE_Sodium_Compat::hex2bin( self::PRIVATE_KEY ) );
-		$tmpfiles  = [];
+		$tmpfiles = [];
 
-		add_filter( 'pre_http_request', function ( $return, $args, $url ) use ( &$tmpfiles, $signature ) {
+		add_filter( 'pre_http_request', function ( $return, $args, $url ) use ( &$tmpfiles ) {
 			if ( false !== strpos( $url, 'releasesignatures.displace.tech' ) ) {
 				$tmpfiles['signature'] = $args['filename'];
 
 				file_put_contents( $args['filename'], wp_json_encode( [
-					'signature' => ParagonIE_Sodium_Compat::bin2hex( $signature ),
+					'signature' => ParagonIE_Sodium_Compat::bin2hex( self::$signature ),
 				] ) );
 
 			} else {
