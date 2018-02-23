@@ -1,4 +1,9 @@
 <?php
+/**
+ * Core functionality for secure WordPress updates.
+ *
+ * @package DisplaceTech\DGXPCO
+ */
 
 namespace DisplaceTech\DGXPCO;
 
@@ -9,7 +14,7 @@ namespace DisplaceTech\DGXPCO;
  */
 function activate()
 {
-    if (!wp_http_supports(array('ssl'))) {
+    if (!wp_http_supports(['ssl'])) {
         deactivate_plugins(DGXPCO_BASENAME);
         exit(esc_html__('Serverside SSL support is not available. DGXPCO has been deactivated.', 'dgxpco'));
     }
@@ -132,7 +137,7 @@ function pre_download($reply, $package, $upgrader)
     // Get the signature for this file first
     $message = sprintf(__('Downloading package signature from %s&#8230;', 'dgxpco'), '<span class="code">%s</span>');
     $signature_path = 'https://releasesignatures.displace.tech/wordpress/' . basename($package) . '.sig';
-    show_message(sprintf($message, $signature_path));
+    $upgrader->skin->feedback(sprintf($message, $signature_path));
     $signature_file = download_url($signature_path);
 
     // No signature
@@ -152,7 +157,7 @@ function pre_download($reply, $package, $upgrader)
             return new \WP_Error('missing_signature', sprintf(__('No signature available for package: %s', 'dgxpco'), $package));
         }
 
-        show_message(__('No signature available for package. Skipping check as configured&#8230;', 'dgxpco'));
+        $upgrader->skin->feedback(__('No signature available for package. Skipping check as configured&#8230;', 'dgxpco'));
         $signature = false;
     } else {
         $signature_json = file_get_contents($signature_file);
@@ -167,11 +172,11 @@ function pre_download($reply, $package, $upgrader)
     $download_file = download_url($package);
 
     if (is_wp_error($download_file)) {
-        return new \WP_Error('download_failed', $this->strings['download_failed'], $download_file->get_error_message());
+        return new \WP_Error('download_failed', $upgrader->strings['download_failed'], $download_file->get_error_message());
     }
 
     if ($signature) {
-        show_message(__('Verifying package signature&#8230;', 'dgxpco'));
+        $upgrader->skin->feedback(__('Verifying package signature&#8230;', 'dgxpco'));
 
         $public_keys = get_public_keys();
         $ed25519_check = verify_file_ed25519($download_file, $public_keys, $signature);

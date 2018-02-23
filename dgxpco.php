@@ -9,6 +9,7 @@
  * License:     MIT
  * Text Domain: dgxpco
  * Domain Path: /languages
+ * @package DisplaceTech\DGXPCO
  */
 
 /**
@@ -29,15 +30,16 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-define('DGXPCO_PATH', dirname(__FILE__) . '/');
-define('DGXPCO_BASENAME', plugin_basename(__FILE__));
+define( 'DGXPCO_PATH', dirname( __FILE__) . '/' );
+define( 'DGXPCO_BASENAME', plugin_basename( __FILE__) );
 
 require_once __DIR__ . '/vendor/autoload.php';
 
-// Activation
-register_activation_hook(__FILE__, '\DisplaceTech\DGXPCO\activate');
+// Activation.
+register_activation_hook( __FILE__, '\DisplaceTech\DGXPCO\activate' );
 
-// Bootstrap
+// Bootstrap.
 DisplaceTech\DGXPCO\setup();
 
-add_filter('upgrader_pre_download', 'DisplaceTech\\DGXPCO\\pre_download', 10, 3);
+// Initialization.
+add_filter( 'upgrader_pre_download', 'DisplaceTech\\DGXPCO\\pre_download', 10, 3 );

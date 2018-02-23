@@ -44,7 +44,7 @@ First Release
 **Contributors:**      Eric Mann  
 **Donate link:**       https://paypal.me/eam  
 **Tags:**              secure, update, upgrade  
-**Requires at least:** 4.0.0  
+**Requires at least:** 4.2.0  
 **Tested up to:**      4.9.4  
 **Stable tag:**        1.0.0  
 **License:**           MIT  
