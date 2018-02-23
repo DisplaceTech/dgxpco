@@ -30,5 +30,9 @@ tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 // Start up the WP testing environment.
 require $_tests_dir . '/includes/bootstrap.php';
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader-skin.php';
-require_once ABSPATH . 'wp-admin/includes/class-automatic-upgrader-skin.php';
+if ($version = getenv('$WP_VERSION') && version_compare($version, '4.6.0', '>=')) {
+    require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader-skin.php';
+    require_once ABSPATH . 'wp-admin/includes/class-automatic-upgrader-skin.php';
+} else {
+    require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader-skins.php';
+}

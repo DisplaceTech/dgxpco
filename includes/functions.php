@@ -1,4 +1,9 @@
 <?php
+/**
+ * Core functionality for secure WordPress updates.
+ *
+ * @package DisplaceTech\DGXPCO
+ */
 
 namespace DisplaceTech\DGXPCO;
 
@@ -9,7 +14,7 @@ namespace DisplaceTech\DGXPCO;
  */
 function activate()
 {
-    if (!wp_http_supports(array('ssl'))) {
+    if (!wp_http_supports(['ssl'])) {
         deactivate_plugins(DGXPCO_BASENAME);
         exit(esc_html__('Serverside SSL support is not available. DGXPCO has been deactivated.', 'dgxpco'));
     }

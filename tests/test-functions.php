@@ -175,11 +175,9 @@ class FunctionsTest extends WP_UnitTestCase {
 		add_filter( 'pre_http_request', function ( $return, $args, $url ) use ( &$tmpfiles ) {
 			if ( false !== strpos( $url, 'releasesignatures.displace.tech' ) ) {
 				$tmpfiles['signature'] = $args['filename'];
-
-				file_put_contents( $args['filename'], wp_json_encode( [
+				file_put_contents( $args['filename'], json_encode( [
 					'signature' => ParagonIE_Sodium_Compat::bin2hex( self::$signature ),
 				] ) );
-
 			} else {
 				$tmpfiles['archive'] = $args['filename'];
 				copy( self::TEST_ARCHIVE, $args['filename'] );

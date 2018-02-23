@@ -2,7 +2,19 @@
 <ruleset name="WordPress Coding Standards for Plugins">
 	<description>Generally-applicable sniffs for WordPress plugins</description>
 
-	<rule ref="WordPress-Core" />
+	<rule ref="WordPress-Core">
+	    <!-- We use PSR-1/2 here ... so ignore some things -->
+	    <exclude name="PEAR.Functions.FunctionCallSignature.SpaceAfterOpenBracket" />
+	    <exclude name="PEAR.Functions.FunctionCallSignature.SpaceBeforeCloseBracket" />
+	    <exclude name="WordPress.WhiteSpace.ControlStructureSpacing.OpenBraceNotSameLine" />
+	    <exclude name="Generic.Functions.OpeningFunctionBraceKernighanRitchie.BraceOnNewLine" />
+	    <exclude name="Generic.WhiteSpace.DisallowSpaceIndent.SpacesUsed" />
+	    <exclude name="WordPress.WhiteSpace.OperatorSpacing.NoSpaceBefore" />
+	    <exclude name="WordPress.WhiteSpace.OperatorSpacing.NoSpaceAfter" />
+	    <exclude name="WordPress.Arrays.ArrayDeclarationSpacing.NoSpaceAfterArrayOpener" />
+	    <exclude name="WordPress.Arrays.ArrayDeclarationSpacing.NoSpaceAfterArrayCloser" />
+	    <exclude name="WordPress.WhiteSpace.ControlStructureSpacing.NoSpaceBeforeCloseParenthesis" />
+	</rule>
 	<rule ref="WordPress-Docs" />
 
 	<!-- Check all PHP files in directory tree by default. -->
@@ -12,6 +24,5 @@
 	<!-- Show progress and sniff codes in all reports -->
 	<arg value="ps"/>
 
-	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 </ruleset>
