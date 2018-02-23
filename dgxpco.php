@@ -9,6 +9,7 @@
  * License:     MIT
  * Text Domain: dgxpco
  * Domain Path: /languages
+ *
  * @package DisplaceTech\DGXPCO
  */
 
