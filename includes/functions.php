@@ -161,8 +161,10 @@ function pre_download( $reply, $package, $upgrader ) {
 		$upgrader->skin->feedback( __( 'No signature available for package. Skipping check as configured&#8230;', 'dgxpco' ) );
 		$signature = false;
 	} else {
+		// phpcs:disable WordPress.WP.AlternativeFunctions
 		$signature_json = file_get_contents( $signature_file );
-		$signature_obj  = json_decode( $signature_json );
+		// phpcs:enable
+		$signature_obj = json_decode( $signature_json );
 		unlink( $signature_file );
 
 		$signature = $signature_obj->signature;
