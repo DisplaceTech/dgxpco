@@ -1,10 +1,10 @@
 === DGXPCO ===
-Contributors:      Eric Mann
+Contributors:      ericmann
 Donate link:       https://paypal.me/eam
 Tags:              secure, update, upgrade
 Requires at least: 4.2.0
 Tested up to:      4.9.4
-Stable tag:        1.0.0
+Stable tag:        1.1.0
 License:           MIT
 License URI:       https://opensource.org/licenses/MIT
 
@@ -35,10 +35,16 @@ None at this time
 
 == Changelog ==
 
+= 1.1.0 =
+* Introduce integration test for full core compatibility guarantees.*
+
 = 1.0.0 =
 * First release
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+The minimum WordPress version requirement is now 4.2.0.
 
 = 1.0.0 =
 First Release
