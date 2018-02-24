@@ -20,12 +20,7 @@ function activate() {
 }
 
 /**
- * Default setup routine
- *
- * @uses add_action()
- * @uses do_action()
- *
- * @return void
+ * Default setup routine.
  */
 function setup() {
 	$n = function ( $function ) {
@@ -39,14 +34,6 @@ function setup() {
 
 /**
  * Registers the default textdomain.
- *
- * @uses apply_filters()
- * @uses get_locale()
- * @uses load_textdomain()
- * @uses load_plugin_textdomain()
- * @uses plugin_basename()
- *
- * @return void
  */
 function i18n() {
 	$locale = apply_filters( 'plugin_locale', get_locale(), 'dgxpco' );
@@ -55,7 +42,7 @@ function i18n() {
 }
 
 /**
- * Return an array of trusted Ed25519 public keys
+ * Return an array of trusted Ed25519 public keys.
  *
  * @return array
  */
@@ -79,7 +66,7 @@ function get_public_keys() {
  * @param array  $publicKeys
  * @param string $signature
  *
- * @return bool|object WP_Error on failure, true on success
+ * @return bool|object WP_Error on failure, true on success.
  */
 function verify_file_ed25519( $filename, $publicKeys, $signature ) {
 	if ( \ParagonIE_Sodium_Core_Util::strlen( $signature ) === \ParagonIE_Sodium_Compat::CRYPTO_SIGN_BYTES * 2 ) {
@@ -114,12 +101,12 @@ function verify_file_ed25519( $filename, $publicKeys, $signature ) {
  * @return bool|\WP_Error
  */
 function pre_download( $reply, $package, $upgrader ) {
-	// If we're already aborting, abort
+	// If we're already aborting, abort.
 	if ( false !== $reply ) {
 		return $reply;
 	}
 
-	// If this isn't a core update, abort
+	// If this isn't a core update, abort.
 	if ( ! preg_match( '!^https://downloads\.wordpress\.org/release/wordpress-\d\.\d\.\d.*\.zip!i', $package ) ) {
 		return $reply;
 	}
@@ -128,13 +115,13 @@ function pre_download( $reply, $package, $upgrader ) {
 		return new \WP_Error( 'no_package', $upgrader->strings['no_package'] );
 	}
 
-	// Get the signature for this file first
+	// Get the signature for this file first.
 	$message        = sprintf( __( 'Downloading package signature from %s&#8230;', 'dgxpco' ), '<span class="code">%s</span>' );
 	$signature_path = 'https://releasesignatures.displace.tech/wordpress/' . basename( $package ) . '.sig';
 	$upgrader->skin->feedback( sprintf( $message, $signature_path ) );
 	$signature_file = download_url( $signature_path );
 
-	// No signature
+	// No signature.
 	if ( is_wp_error( $signature_file ) ) {
 		/**
 		 * Signatures are required for all core updates by default. If, for some reason, you wish to allow
