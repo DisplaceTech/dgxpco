@@ -7,6 +7,12 @@
 
 namespace DisplaceTech\DGXPCO;
 
+use ParagonIE_Sodium_Compat as Compat;
+use ParagonIE_Sodium_Core_Util as Util;
+use ParagonIE_Sodium_File as File;
+use WP_Error;
+use WP_Upgrader;
+
 /**
  * Make sure this installation is safe for our purposes.
  *
@@ -48,7 +54,7 @@ function i18n() {
  */
 function get_public_keys() {
 	$known_keys = [
-		\ParagonIE_Sodium_Compat::hex2bin( '5d4c696e571307b4a47626ae0bf9a7a229403c46657b4a9e832fee47e253bc5b' ),
+		Compat::hex2bin( '5d4c696e571307b4a47626ae0bf9a7a229403c46657b4a9e832fee47e253bc5b' ),
 	];
 
 	/**
@@ -69,20 +75,20 @@ function get_public_keys() {
  * @return bool|object WP_Error on failure, true on success.
  */
 function verify_file_ed25519( $filename, $public_keys, $signature ) {
-	if ( \ParagonIE_Sodium_Core_Util::strlen( $signature ) === \ParagonIE_Sodium_Compat::CRYPTO_SIGN_BYTES * 2 ) {
-		$signature = \ParagonIE_Sodium_Compat::hex2bin( $signature );
+	if ( Util::strlen( $signature ) === Compat::CRYPTO_SIGN_BYTES * 2 ) {
+		$signature = Compat::hex2bin( $signature );
 	}
 
 	foreach ( $public_keys as $public_key ) {
-		if ( \ParagonIE_Sodium_Core_Util::strlen( $public_key ) === \ParagonIE_Sodium_Compat::CRYPTO_SIGN_PUBLICKEYBYTES * 2 ) {
-			$public_key = \ParagonIE_Sodium_Compat::hex2bin( $public_key );
+		if ( Util::strlen( $public_key ) === Compat::CRYPTO_SIGN_PUBLICKEYBYTES * 2 ) {
+			$public_key = Compat::hex2bin( $public_key );
 		}
-		if ( \ParagonIE_Sodium_File::verify( $signature, $filename, $public_key ) ) {
+		if ( File::verify( $signature, $filename, $public_key ) ) {
 			return true;
 		}
 	}
 
-	return new \WP_Error( 'ed25519_mismatch', sprintf(
+	return new WP_Error( 'ed25519_mismatch', sprintf(
 		/* Translators: %1$s is the file signature. */
 		__( 'The signature of the file (%1$s) is not valid for any of the trusted public keys.', 'dxgpco' ),
 		bin2hex( $signature )
@@ -98,11 +104,11 @@ function verify_file_ed25519( $filename, $public_keys, $signature ) {
  *
  * If the package is unknown file, passthru for standard operations.
  *
- * @param bool         $reply    Whether to bail without returning the package.
- * @param string       $package  The package file name.
- * @param \WP_Upgrader $upgrader The WP_Upgrader instance.
+ * @param bool        $reply    Whether to bail without returning the package.
+ * @param string      $package  The package file name.
+ * @param WP_Upgrader $upgrader The WP_Upgrader instance.
  *
- * @return bool|\WP_Error
+ * @return bool|WP_Error
  */
 function pre_download( $reply, $package, $upgrader ) {
 	// If we're already aborting, abort.
@@ -116,7 +122,7 @@ function pre_download( $reply, $package, $upgrader ) {
 	}
 
 	if ( empty( $package ) ) {
-		return new \WP_Error( 'no_package', $upgrader->strings['no_package'] );
+		return new WP_Error( 'no_package', $upgrader->strings['no_package'] );
 	}
 
 	// Get the signature for this file first.
@@ -145,7 +151,7 @@ function pre_download( $reply, $package, $upgrader ) {
 		$require_signatures = apply_filters( 'dgxpco_require_signatures', true );
 
 		if ( $require_signatures ) {
-			return new \WP_Error( 'missing_signature', sprintf(
+			return new WP_Error( 'missing_signature', sprintf(
 				/* Translators: %1$s is the package name. */
 				__( 'No signature available for package: %1$s', 'dgxpco' ),
 				$package
@@ -167,7 +173,7 @@ function pre_download( $reply, $package, $upgrader ) {
 	$download_file = download_url( $package );
 
 	if ( is_wp_error( $download_file ) ) {
-		return new \WP_Error( 'download_failed', $upgrader->strings['download_failed'], $download_file->get_error_message() );
+		return new WP_Error( 'download_failed', $upgrader->strings['download_failed'], $download_file->get_error_message() );
 	}
 
 	if ( $signature ) {
