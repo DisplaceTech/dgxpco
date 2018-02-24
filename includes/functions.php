@@ -48,7 +48,7 @@ function i18n() {
  */
 function get_public_keys() {
 	$known_keys = [
-		\ParagonIE_Sodium_Compat::hex2bin( '5d4c696e571307b4a47626ae0bf9a7a229403c46657b4a9e832fee47e253bc5b' )
+		\ParagonIE_Sodium_Compat::hex2bin( '5d4c696e571307b4a47626ae0bf9a7a229403c46657b4a9e832fee47e253bc5b' ),
 	];
 
 	/**
