@@ -44,7 +44,7 @@ function i18n() {
 /**
  * Return an array of trusted Ed25519 public keys.
  *
- * @return array
+ * @return array An array of trusted Ed25519 public keys.
  */
 function get_public_keys() {
 	$known_keys = [
@@ -52,9 +52,9 @@ function get_public_keys() {
 	];
 
 	/**
-	 * Filter the array of know, trusted Ed25519 signing keys.
+	 * Filter the array of known, trusted Ed25519 signing keys.
 	 *
-	 * @param array $known_keys
+	 * @param array $known_keys An array of trusted Ed25519 public keys.
 	 */
 	return apply_filters( 'dgxpco_trusted_keys', $known_keys );
 }
@@ -62,18 +62,18 @@ function get_public_keys() {
 /**
  * Verifies the Ed25519 signature of a file for a given set of public keys.
  *
- * @param string $filename
- * @param array  $publicKeys
- * @param string $signature
+ * @param string $filename    The system path to the file being verified.
+ * @param array  $public_keys An array of trusted Ed25519 public keys.
+ * @param string $signature   The file signature.
  *
  * @return bool|object WP_Error on failure, true on success.
  */
-function verify_file_ed25519( $filename, $publicKeys, $signature ) {
+function verify_file_ed25519( $filename, $public_keys, $signature ) {
 	if ( \ParagonIE_Sodium_Core_Util::strlen( $signature ) === \ParagonIE_Sodium_Compat::CRYPTO_SIGN_BYTES * 2 ) {
 		$signature = \ParagonIE_Sodium_Compat::hex2bin( $signature );
 	}
 
-	foreach ( $publicKeys as $public_key ) {
+	foreach ( $public_keys as $public_key ) {
 		if ( \ParagonIE_Sodium_Core_Util::strlen( $public_key ) === \ParagonIE_Sodium_Compat::CRYPTO_SIGN_PUBLICKEYBYTES * 2 ) {
 			$public_key = \ParagonIE_Sodium_Compat::hex2bin( $public_key );
 		}
@@ -82,7 +82,11 @@ function verify_file_ed25519( $filename, $publicKeys, $signature ) {
 		}
 	}
 
-	return new \WP_Error( 'ed25519_mismatch', sprintf( __( 'The signature of the file (%1$s) is not valid for any of the trusted public keys.', 'dxgpco' ), bin2hex( $signature ) ) );
+	return new \WP_Error( 'ed25519_mismatch', sprintf(
+		/* Translators: %1$s is the file signature. */
+		__( 'The signature of the file (%1$s) is not valid for any of the trusted public keys.', 'dxgpco' ),
+		bin2hex( $signature )
+	) );
 }
 
 /**
@@ -94,9 +98,9 @@ function verify_file_ed25519( $filename, $publicKeys, $signature ) {
  *
  * If the package is unknown file, passthru for standard operations.
  *
- * @param bool         $reply
- * @param string       $package
- * @param \WP_Upgrader $upgrader
+ * @param bool         $reply    Whether to bail without returning the package.
+ * @param string       $package  The package file name.
+ * @param \WP_Upgrader $upgrader The WP_Upgrader instance.
  *
  * @return bool|\WP_Error
  */
@@ -116,7 +120,11 @@ function pre_download( $reply, $package, $upgrader ) {
 	}
 
 	// Get the signature for this file first.
-	$message        = sprintf( __( 'Downloading package signature from %s&#8230;', 'dgxpco' ), '<span class="code">%s</span>' );
+	$message = sprintf(
+		/* Translators: %1$s is the URL for the signature. */
+		__( 'Downloading package signature from %1$s&#8230;', 'dgxpco' ),
+		'<span class="code">%s</span>'
+	);
 	$signature_path = 'https://releasesignatures.displace.tech/wordpress/' . basename( $package ) . '.sig';
 	$upgrader->skin->feedback( sprintf( $message, $signature_path ) );
 	$signature_file = download_url( $signature_path );
@@ -131,11 +139,17 @@ function pre_download( $reply, $package, $upgrader ) {
 		 *
 		 * Your decision.
 		 *
-		 * @param bool $require_signatures
+		 * @param bool $require_signatures Whether or not to permit packages to be installed
+		 *                                 without valid signatures.
 		 */
 		$require_signatures = apply_filters( 'dgxpco_require_signatures', true );
+
 		if ( $require_signatures ) {
-			return new \WP_Error( 'missing_signature', sprintf( __( 'No signature available for package: %s', 'dgxpco' ), $package ) );
+			return new \WP_Error( 'missing_signature', sprintf(
+				/* Translators: %1$s is the package name. */
+				__( 'No signature available for package: %1$s', 'dgxpco' ),
+				$package
+			) );
 		}
 
 		$upgrader->skin->feedback( __( 'No signature available for package. Skipping check as configured&#8230;', 'dgxpco' ) );
