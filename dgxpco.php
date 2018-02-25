@@ -31,8 +31,8 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-define( 'DGXPCO_PATH', dirname( __FILE__) . '/' );
-define( 'DGXPCO_BASENAME', plugin_basename( __FILE__) );
+define( 'DGXPCO_PATH', dirname( __FILE__ ) . '/' );
+define( 'DGXPCO_BASENAME', plugin_basename( __FILE__ ) );
 
 require_once __DIR__ . '/vendor/autoload.php';
 
