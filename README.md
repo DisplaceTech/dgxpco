@@ -1,4 +1,4 @@
-# DGXPCO
+# DGXPCO ![PHP 5.6+][php-image] ![WordPress 4.2.0+][wordpress-image] [![Build Status][travis-image]][travis-url] [![Coverage Status][coveralls-image]][coveralls-url]
 
 Secure software updates for WordPress.
 
@@ -55,3 +55,10 @@ First Release
 **Stable tag:**        1.1.0  
 **License:**           MIT  
 **License URI:**       https://opensource.org/licenses/MIT  
+
+[php-image]: https://img.shields.io/badge/php-5.6%2B-green.svg
+[wordpress-image]: https://img.shields.io/badge/WordPress-4.2.0%2B-green.svg
+[travis-image]: https://travis-ci.org/displacetech/dgxpco.svg?branch=master
+[travis-url]: https://travis-ci.org/displacetech/dgxpco
+[coveralls-image]: https://coveralls.io/repos/github/displacetech/dgxpco/badge.svg?branch=master
+[coveralls-url]: https://coveralls.io/github/displacetech/dgxpco?branch=master
