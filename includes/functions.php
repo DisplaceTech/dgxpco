@@ -34,6 +34,7 @@ function setup() {
 	};
 
 	add_action( 'init', $n( 'i18n' ) );
+	add_filter( 'pre_set_site_transient_update_core', $n( 'filter_unsigned_core_updates' ) );
 
 	do_action( 'dgxpco_loaded' );
 }
@@ -128,15 +129,14 @@ function pre_download( $reply, $package, $upgrader ) {
 	// Get the signature for this file first.
 	$message = sprintf(
 		/* Translators: %1$s is the URL for the signature. */
-		__( 'Downloading package signature from %1$s&#8230;', 'dgxpco' ),
+		__( 'Downloading package signature for %1$s&#8230;', 'dgxpco' ),
 		'<span class="code">%s</span>'
 	);
-	$signature_path = 'https://releasesignatures.displace.tech/wordpress/' . basename( $package ) . '.sig';
-	$upgrader->skin->feedback( sprintf( $message, $signature_path ) );
-	$signature_file = download_url( $signature_path );
+	$upgrader->skin->feedback( sprintf( $message, $package ) );
+	$signature = get_signature($package);
 
 	// No signature.
-	if ( is_wp_error( $signature_file ) ) {
+	if ( is_wp_error( $signature ) ) {
 		/**
 		 * Signatures are required for all core updates by default. If, for some reason, you wish to allow
 		 * updates without checking the signature, use this filter to bypass the signature check.
@@ -148,26 +148,12 @@ function pre_download( $reply, $package, $upgrader ) {
 		 * @param bool $require_signatures Whether or not to permit packages to be installed
 		 *                                 without valid signatures.
 		 */
-		$require_signatures = apply_filters( 'dgxpco_require_signatures', true );
-
-		if ( $require_signatures ) {
-			return new WP_Error( 'missing_signature', sprintf(
-				/* Translators: %1$s is the package name. */
-				__( 'No signature available for package: %1$s', 'dgxpco' ),
-				$package
-			) );
+		if ( apply_filters( 'dgxpco_require_signatures', true ) ) {
+			return $signature;
 		}
 
 		$upgrader->skin->feedback( __( 'No signature available for package. Skipping check as configured&#8230;', 'dgxpco' ) );
 		$signature = false;
-	} else {
-		// phpcs:disable WordPress.WP.AlternativeFunctions
-		$signature_json = file_get_contents( $signature_file );
-		// phpcs:enable
-		$signature_obj = json_decode( $signature_json );
-		unlink( $signature_file );
-
-		$signature = $signature_obj->signature;
 	}
 
 	$upgrader->skin->feedback( 'downloading_package', $package );
@@ -191,4 +177,83 @@ function pre_download( $reply, $package, $upgrader ) {
 	}
 
 	return $download_file;
+}
+
+/**
+ * Get the signature for a specific download package.
+ *
+ * @param string $package URL of the download package for which to fetch a signature.
+ * @param string [$scope] Scope of the package. One of "core," "plugin," "theme"
+ *
+ * @return string|WP_Error
+ */
+function get_signature( $package, $scope = 'core' ) {
+	switch( $scope ) {
+		case 'plugin':
+			$signature_path = 'https://releasesignatures.displace.tech/wordpress/plugins/' . basename( $package ) . '.sig';
+			break;
+		case 'theme':
+			$signature_path = 'https://releasesignatures.displace.tech/wordpress/themes/' . basename( $package ) . '.sig';
+			break;
+		case 'core':
+		default:
+			$signature_path = 'https://releasesignatures.displace.tech/wordpress/' . basename( $package ) . '.sig';
+	}
+
+	$signature_hash = sprintf( 'dgxpo_%s', wp_hash( $signature_path ) );
+
+	$signature = get_site_transient( $signature_hash );
+	if ( false !== $signature ) {
+		return $signature;
+	}
+
+	$signature_file = download_url( $signature_path );
+
+	if ( is_wp_error( $signature_file ) ) {
+		return new WP_Error( 'missing_signature', sprintf(
+		/* Translators: %1$s is the package name. */
+			__( 'No signature available for package: %1$s', 'dgxpco' ),
+			$package
+		) );
+	} else {
+		// phpcs:disable WordPress.WP.AlternativeFunctions
+		$signature_json = file_get_contents( $signature_file );
+		// phpcs:enable
+		$signature_obj = json_decode( $signature_json );
+		unlink( $signature_file );
+
+		$signature = $signature_obj->signature;
+	}
+
+	set_site_transient( $signature_hash, $signature, 60 * 60 );
+
+	return $signature;
+}
+
+/**
+ * Filter out any pending core updates that _don't_ have a signature on the server to avoid even
+ * prompting users if a signature is missing.
+ *
+ * @param object $updates
+ *
+ * @return object
+ */
+function filter_unsigned_core_updates( $updates ) {
+	if ( empty( $updates->updates ) ) {
+		return $updates;
+	}
+
+	$offers = [];
+
+	foreach ( $updates->updates as $offer ) {
+		$url = $offer->download;
+		$signature = get_signature( $url );
+
+		if ( ! is_wp_error( $signature ) ) {
+			$offers[] = $offer;
+		}
+	}
+
+	$updates->updates = $offers;
+	return $updates;
 }

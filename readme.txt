@@ -35,8 +35,11 @@ None at this time
 
 == Changelog ==
 
+= 1.2.0 =
+* Filter the upgrade cache to avoid prompting core upgrades with missing signatures.
+
 = 1.1.0 =
-* Introduce integration test for full core compatibility guarantees.*
+* Introduce integration test for full core compatibility guarantees.
 
 = 1.0.0 =
 * First release
