@@ -133,7 +133,7 @@ function pre_download( $reply, $package, $upgrader ) {
 		'<span class="code">%s</span>'
 	);
 	$upgrader->skin->feedback( sprintf( $message, $package ) );
-	$signature = get_signature($package);
+	$signature = get_signature( $package );
 
 	// No signature.
 	if ( is_wp_error( $signature ) ) {
@@ -183,12 +183,12 @@ function pre_download( $reply, $package, $upgrader ) {
  * Get the signature for a specific download package.
  *
  * @param string $package URL of the download package for which to fetch a signature.
- * @param string [$scope] Scope of the package. One of "core," "plugin," "theme"
+ * @param string $scope   Scope of the package. One of core/plugin/theme.
  *
  * @return string|WP_Error
  */
 function get_signature( $package, $scope = 'core' ) {
-	switch( $scope ) {
+	switch ( $scope ) {
 		case 'plugin':
 			$signature_path = 'https://releasesignatures.displace.tech/wordpress/plugins/' . basename( $package ) . '.sig';
 			break;
@@ -211,7 +211,7 @@ function get_signature( $package, $scope = 'core' ) {
 
 	if ( is_wp_error( $signature_file ) ) {
 		return new WP_Error( 'missing_signature', sprintf(
-		/* Translators: %1$s is the package name. */
+			/* Translators: %1$s is the package name. */
 			__( 'No signature available for package: %1$s', 'dgxpco' ),
 			$package
 		) );
@@ -234,7 +234,7 @@ function get_signature( $package, $scope = 'core' ) {
  * Filter out any pending core updates that _don't_ have a signature on the server to avoid even
  * prompting users if a signature is missing.
  *
- * @param object $updates
+ * @param object $updates Update object as returned from api.wordpress.org.
  *
  * @return object
  */
@@ -246,7 +246,7 @@ function filter_unsigned_core_updates( $updates ) {
 	$offers = [];
 
 	foreach ( $updates->updates as $offer ) {
-		$url = $offer->download;
+		$url       = $offer->download;
 		$signature = get_signature( $url );
 
 		if ( ! is_wp_error( $signature ) ) {
