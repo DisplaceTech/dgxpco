@@ -4,7 +4,7 @@ Donate link:       https://paypal.me/eam
 Tags:              secure, update, upgrade
 Requires at least: 4.2.0
 Tested up to:      4.9.4
-Stable tag:        1.1.0
+Stable tag:        1.2.0
 License:           MIT
 License URI:       https://opensource.org/licenses/MIT
 

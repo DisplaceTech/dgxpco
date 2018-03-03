@@ -1,7 +1,7 @@
 {
 	"name": "dgxpco",
 	"description": "Update security for WordPress",
-	"version": "1.0.0",
+	"version": "1.2.0",
 	"type": "wordpress-plugin",
 	"keywords": ["secure", "update", "upgrade"],
 	"homepage": "https://github.com/displacetech/dgxpco",

@@ -3,7 +3,7 @@
  * Plugin Name: DGXPCO
  * Plugin URI:  https://github.com/displacetech/dgxpco
  * Description: Secure updates for WordPress.
- * Version:     1.1.0
+ * Version:     1.2.0
  * Author:      Eric Mann
  * Author URI:  https://eamann.com
  * License:     MIT
